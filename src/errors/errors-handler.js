@@ -1,5 +1,5 @@
 import { AppError, AppErrors } from "./errors.js";
-import { Response } from "./response.js";
+import { Response } from "../response.js";
 
 export function handleError(error) {
     if (error instanceof AppError) {
