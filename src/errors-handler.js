@@ -1,5 +1,5 @@
-import { AppError, AppErrors } from "./errors.js";
-import { Response } from "../response.js";
+import { AppError, AppErrors } from "./domain/errors.js";
+import { Response } from "./response.js";
 
 export function handleError(error) {
     if (error instanceof AppError) {
@@ -10,6 +10,6 @@ export function handleError(error) {
     }
     return {
         status: 500,
-        response: Response.failure([AppErrors.UNKNOWN])
+        response: Response.failure([AppErrors.unknown])
     };
 }

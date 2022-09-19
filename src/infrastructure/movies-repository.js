@@ -9,11 +9,11 @@ export class MoviesRepository {
         //TODO init
     }
 
-    genres() {
+    getAllowedGenres() {
         return [];
     }
 
     addMovie(movie) {
-        
+        return 1;
     }
 }

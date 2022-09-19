@@ -1,7 +1,7 @@
 import express from "express";
 import { Response } from "./response.js";
-import * as errors from "./errors/errors.js";
-import { handleError } from "./errors/errors-handler.js";
+import * as errors from "./domain/errors.js";
+import { handleError } from "./errors-handler.js";
 import { MoviesRepository } from "./infrastructure/movies-repository.js";
 import { MoviesComponent } from "./domain/movies-component.js";
 
@@ -33,7 +33,7 @@ app.get("/movies", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-    throw new errors.AppError([errors.AppErrors.INVALID_MOVIE_GENRE]);
+    throw new errors.AppError([errors.AppErrors.invalidMovieGenres]);
     const response = Response.success({
         "id": 1,
         "createdAt": Date.now()
