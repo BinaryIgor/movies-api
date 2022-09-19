@@ -2,12 +2,15 @@ import express from "express";
 import { Response } from "./response.js";
 import * as errors from "./errors/errors.js";
 import { handleError } from "./errors/errors-handler.js";
+import { MoviesRepository } from "./infrastructure/movies-repository.js";
 import { MoviesComponent } from "./domain/movies-component.js";
 
 const app = express();
 const port = process.env.PORT | 5050;
+const moviesFile = process.env.MOVIES_FILE | "../data/db.json";
 
-const moviesComponent = new MoviesComponent();
+const moviesRepository = new MoviesRepository(moviesFile);
+const moviesComponent = new MoviesComponent(moviesRepository);
 
 app.use(express.json());
 
