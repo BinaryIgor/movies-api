@@ -19,6 +19,17 @@ export class MoviesComponent {
             errors.push(AppErrors.invalidMovieGenres(validGenres));
         }
 
+        if (!this._isNonEmptyStringShorterThan(newMovie.title, 255)) {
+            errors.push(AppErrors.invalidMovieTitle());
+        }
+
+        if (!this._isValidPositiveNumber(newMovie.year)) {
+            errors.push(AppErrors.invalidMovieYear());
+        }
+
+        if (!this._isValidPositiveNumber(newMovie.runtime)) {
+            errors.push(AppErrors.invalidMovieRuntime());
+        }
 
         if (errors.length > 0) {
             throw new AppError(errors);
@@ -36,7 +47,7 @@ export class MoviesComponent {
             if (uniqueGenres.length == 0) {
                 return false;
             }
-            
+
             for (const g of uniqueGenres) {
                 if (!validGenres.includes(g)) {
                     return false;
@@ -44,6 +55,23 @@ export class MoviesComponent {
             }
 
             return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+
+    _isNonEmptyStringShorterThan(string, maxLength) {
+        return string
+            && string instanceof String
+            && string.trim().length > 0
+            && string.length <= maxLength;
+    }
+
+    _isValidPositiveNumber(number) {
+        try {
+            const int = parseInt(number);
+            return int != NaN && int > 0;
         } catch (e) {
             return false;
         }

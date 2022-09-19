@@ -1,6 +1,5 @@
 import express from "express";
-import { Response } from "./response.js";
-import * as errors from "./domain/errors.js";
+import { ApiResponse } from "./api-response.js";
 import { handleError } from "./errors-handler.js";
 import { MoviesRepository } from "./infrastructure/movies-repository.js";
 import { MoviesComponent } from "./domain/movies-component.js";
@@ -19,7 +18,7 @@ app.post("/movies", (req, res) => {
     const movieId = moviesComponent.addMovie(movie);
 
     res.status(201)
-        .json(Response.success(movieId));
+        .json(ApiResponse.success(movieId));
 });
 
 app.get("/movies", (req, res) => {
@@ -29,16 +28,7 @@ app.get("/movies", (req, res) => {
     const movies = moviesComponent.searchMovies(duration, genres);
 
     res.status(200)
-        .json(Response.success(movies));
-});
-
-app.get("/", (req, res) => {
-    throw new errors.AppError([errors.AppErrors.invalidMovieGenres]);
-    const response = Response.success({
-        "id": 1,
-        "createdAt": Date.now()
-    });
-    res.json(response);
+        .json(ApiResponse.success(movies));
 });
 
 app.use((err, req, res, next) => {
