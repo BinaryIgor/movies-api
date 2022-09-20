@@ -87,9 +87,13 @@ export class MoviesComponent {
     }
 
     _isValidPositiveNumber(number) {
+        return this._isValidNumber(number) && parseInt(number) > 0;
+    }
+
+    _isValidNumber(number) {
         try {
             const int = parseInt(number);
-            return !isNaN(int) && int > 0;
+            return !isNaN(int);
         } catch (e) {
             return false;
         }
@@ -103,9 +107,64 @@ export class MoviesComponent {
     }
 
     async searchMovies(duration, genres) {
-        console.log("Searching movies...", duration, genres);
+        const validDuration = this._validateDuration(duration);
+        const validGenres = this._validateGenres(genres);
+
+        if (!validDuration && !validGenres) {
+            const movies = await this.moviesRepository.getAllMovies();
+            return this._getRandomMovie(movies);
+        }
+
+        console.log("Searching movies...", validDuration, validGenres);
         const movies = await this.moviesRepository.getAllMovies();
+
+        if (validDuration && !validGenres) {
+            return this._findMatchingByDurationMovies(movies, validDuration);
+        }
+
         console.log("ALL movies...", movies);
         return movies;
+    }
+
+    _validateDuration(duration) {
+        if (!duration || !this._isValidNumber(duration)) {
+            return null;
+        }
+        return parseInt(duration);
+    }
+
+    _validateGenres(genres) {
+        if (!genres) {
+            return genres;
+        }
+        try {
+            genres.length;
+            return genres;
+        } catch (e) {
+            return genres;
+        }
+    }
+
+    _findMatchingByDurationMovies(movies, duration) {
+        const minDuration = duration - 10;
+        const maxDuration = duration + 10;
+
+        const filteredMovies = movies.filter(m => {
+            const runtime = parseInt(m.runtime);
+            return runtime >= minDuration && runtime <= maxDuration;
+        });
+
+        return this._getRandomMovie(filteredMovies);
+    }
+
+    async _getRandomMovie(movies) {
+        if (movies.length > 0) {
+            return [movies[this._randomInt(movies.length)]];
+        }
+        return [];
+    }
+
+    _randomInt(max) {
+        return Math.floor(Math.random() * max);
     }
 }

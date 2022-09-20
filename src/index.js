@@ -47,5 +47,4 @@ app.use((err, req, res, next) => {
         .json(statusResponse.response);
 });
 
-
 app.listen(port, () => console.log(`Movies api has started on ${port} port!`));

@@ -4,7 +4,6 @@ export class MoviesRepository {
 
     constructor(moviesFile) {
         this.moviesFile = moviesFile;
-        this.movies = [];
     }
 
     async getAllowedGenres() {
@@ -12,11 +11,31 @@ export class MoviesRepository {
     }
 
     async addMovie(movie) {
-        return 1;
+        const db = await this._loadMoviesDb();
+        const nextId = await this._nextMovieId(db.movies);
+
+        movie.id = nextId;
+        await this._saveNewMovie(movie);
+
+        return nextId;
+    }
+
+    _nextMovieId(movies) {
+        let nextId;
+        if (movies.length > 0) {
+            nextId = movies[movies.length - 1];
+        } else {
+            nextId = 1;
+        }
+        return nextId;
+    }
+
+    async _saveNewMovie(db, newMovie) {
+        db.movies.push(newMovie);
+        await fs.promises.writeFile(this.moviesFile, JSON.stringify(db));
     }
 
     async _loadMoviesDb() {
-        console.log("Movies file...", this.moviesFile);
         const dbJson = await fs.promises.readFile(this.moviesFile, 'utf8');
         return JSON.parse(dbJson);
     }
