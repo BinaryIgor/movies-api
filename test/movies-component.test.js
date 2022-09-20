@@ -18,13 +18,13 @@ describe("Movies component tests", () => {
         component = new MoviesComponent(repository);
     });
 
-    it('addMovie, given newMovie without genres, throws expected AppError', () => {
+    it('addMovie, given newMovie without genres, throws expected AppError', async () => {
         const newMovie = buildNewMovie({ genres: [] });
         assertAddMovieThrowsExpectedAppError(newMovie,
             AppErrors.invalidMovieGenres(DEFAULT_ALLOWED_GENRES));
     });
 
-    it('addMovie, given newMovie with invalid genres, throws expected AppError', () => {
+    it('addMovie, given newMovie with invalid genres, throws expected AppError', async () => {
         const newMovie = buildNewMovie({ genres: ['a', 'b'] });
         const allowedGenres = ['A'];
         repository.allowedGenres = allowedGenres;
@@ -33,7 +33,7 @@ describe("Movies component tests", () => {
             AppErrors.invalidMovieGenres(allowedGenres));
     });
 
-    it('addMovie, given newMovie with duplicated genres, throws expected AppError', () => {
+    it('addMovie, given newMovie with duplicated genres, throws expected AppError', async () => {
         const newMovie = buildNewMovie({ genres: ['a', 'a', 'b', 'b', 'A'] });
         const allowedGenres = ['A', 'B'];
         repository.allowedGenres = allowedGenres;
@@ -43,14 +43,14 @@ describe("Movies component tests", () => {
     });
 
     [null, '', 22, TOO_LONG_TITLE].forEach(t =>
-        it(`addMovie, given newMovie with invalid ${t} title, throws expected AppError`, () => {
+        it(`addMovie, given newMovie with invalid ${t} title, throws expected AppError`, async () => {
             const newMovie = buildNewMovie({ title: t });
             assertAddMovieThrowsExpectedAppError(newMovie,
                 AppErrors.invalidMovieTitle());
         }));
 
     ['A', -1, null].forEach(y => {
-        it(`addMovie, given newMovie with invalid ${y} year, throws expected AppError`, () => {
+        it(`addMovie, given newMovie with invalid ${y} year, throws expected AppError`, async () => {
             const newMovie = buildNewMovie({ year: y });
             assertAddMovieThrowsExpectedAppError(newMovie,
                 AppErrors.invalidMovieYear());
@@ -58,7 +58,7 @@ describe("Movies component tests", () => {
     });
 
     ['some runtime', -99, null].forEach(r => {
-        it(`addMovie, given newMovie with invalid ${r} runtime, throws expected AppError`, () => {
+        it(`addMovie, given newMovie with invalid ${r} runtime, throws expected AppError`, async () => {
             const newMovie = buildNewMovie({ runtime: r });
             assertAddMovieThrowsExpectedAppError(newMovie,
                 AppErrors.invalidMovieRuntime());
@@ -66,32 +66,32 @@ describe("Movies component tests", () => {
     });
 
     [null, '', 1, TOO_LONG_DIRECTOR].forEach(d => {
-        it(`addMovie, given newMovie with invalid ${d} director, throws expected AppError`, () => {
+        it(`addMovie, given newMovie with invalid ${d} director, throws expected AppError`, async () => {
             const newMovie = buildNewMovie({ director: d });
             assertAddMovieThrowsExpectedAppError(newMovie,
                 AppErrors.invalidMovieDirector());
         });
     });
 
-    it('addMovie, given newMovie with invalid actors, throws expected AppError', () => {
+    it('addMovie, given newMovie with invalid actors, throws expected AppError', async () => {
         const newMovie = buildNewMovie({ actors: 123 });
         assertAddMovieThrowsExpectedAppError(newMovie,
             AppErrors.invalidMovieActors());
     });
 
-    it('addMovie, given newMovie with invalid plot, throws expected AppError', () => {
+    it('addMovie, given newMovie with invalid plot, throws expected AppError', async () => {
         const newMovie = buildNewMovie({ plot: 88 });
         assertAddMovieThrowsExpectedAppError(newMovie,
             AppErrors.invalidMoviePlot());
     });
 
-    it('addMovie, given newMovie with invalid posterUrl, throws expected AppError', () => {
+    it('addMovie, given newMovie with invalid posterUrl, throws expected AppError', async () => {
         const newMovie = buildNewMovie({ posterUrl: 101 });
         assertAddMovieThrowsExpectedAppError(newMovie,
             AppErrors.invalidMoviePosterUrl());
     });
 
-    it('addMovie, given newMovie with various invalid fields, throws expected AppError', () => {
+    it('addMovie, given newMovie with various invalid fields, throws expected AppError', async () => {
         const newMovie = buildNewMovie({ genres: ['A'], title: 22, year: -1, posterUrl: 202 });
 
         assertAddMovieThrowsExpectedAppError(newMovie,
@@ -101,17 +101,17 @@ describe("Movies component tests", () => {
             AppErrors.invalidMoviePosterUrl());
     });
 
-    it('addMovie, given valid newMovie with all fields, adds it to repository and returns id', () => {
+    it('addMovie, given valid newMovie with all fields, adds it to repository and returns id', async () => {
         const newMovie = buildNewMovie();
         const newMovieId = 99;
 
         repository.nextMovieId = newMovieId;
 
-        expect(component.addMovie(newMovie)).to.eq(newMovieId);
+        expect(await component.addMovie(newMovie)).to.eq(newMovieId);
         expect(repository.addedMovie).to.deep.equal(newMovie);
     });
 
-    it('addMovie, given valid newMovie without optional fields, adds it to repository and returns id', () => {
+    it('addMovie, given valid newMovie without optional fields, adds it to repository and returns id', async () => {
         const newMovie = buildNewMovie();
         newMovie.actors = undefined;
         newMovie.plot = undefined;
@@ -121,13 +121,13 @@ describe("Movies component tests", () => {
 
         repository.nextMovieId = newMovieId;
 
-        expect(component.addMovie(newMovie)).to.eq(newMovieId);
+        expect(await component.addMovie(newMovie)).to.eq(newMovieId);
         expect(repository.addedMovie).to.deep.equal(newMovie);
     });
 })
 
-function assertAddMovieThrowsExpectedAppError(newMovie, ...errors) {
-    expect(() => component.addMovie(newMovie))
+async function assertAddMovieThrowsExpectedAppError(newMovie, ...errors) {
+    expect(async () => await component.addMovie(newMovie))
         .to.throw(AppError)
         .with.property('errors')
         .deep.equals(errors);

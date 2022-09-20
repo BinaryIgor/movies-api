@@ -9,15 +9,15 @@ export class MoviesComponent {
         this.moviesRepository = moviesRepository;
     }
 
-    addMovie(newMovie = {}) {
-        this._validateNewMovie(newMovie);
-        return this.moviesRepository.addMovie(newMovie);
+    async addMovie(newMovie = {}) {
+        await this._validateNewMovie(newMovie);
+        return await this.moviesRepository.addMovie(newMovie);
     }
 
-    _validateNewMovie(newMovie) {
+    async _validateNewMovie(newMovie) {
         const errors = [];
 
-        const validGenres = this.moviesRepository.getAllowedGenres();
+        const validGenres = await this.moviesRepository.getAllowedGenres();
         if (!this._areGenresValid(newMovie, validGenres)) {
             errors.push(AppErrors.invalidMovieGenres(validGenres));
         }
@@ -102,8 +102,10 @@ export class MoviesComponent {
         return typeof string === 'string';
     }
 
-    searchMovies(duration, genres) {
+    async searchMovies(duration, genres) {
         console.log("Searching movies...", duration, genres);
-        return [];
+        const movies = await this.moviesRepository.getAllMovies();
+        console.log("ALL movies...", movies);
+        return movies;
     }
 }
