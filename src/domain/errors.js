@@ -37,8 +37,8 @@ export const AppErrors = {
     invalidMoviePlot() {
         return new AppErrorData("INVALID_MOVIE_PLOT", "Plot should be a string");
     },
-    invalidPosterUrl() {
-        return new AppErrorData("INVALID_MOVIE_POSTER", "Poster should be a string");
+    invalidMoviePosterUrl() {
+        return new AppErrorData("INVALID_MOVIE_POSTER_URL", "Poster url should be a string");
     },
     unknown() {
         return new AppErrorData("UNKNOWN_ERROR");

@@ -1,5 +1,8 @@
 import { AppError, AppErrors } from "./errors.js";
 
+const MAX_TITLE_LENGTH = 255;
+const MAX_DIRECTOR_LENGTH = 255;
+
 export class MoviesComponent {
 
     constructor(moviesRepository) {
@@ -19,7 +22,7 @@ export class MoviesComponent {
             errors.push(AppErrors.invalidMovieGenres(validGenres));
         }
 
-        if (!this._isNonEmptyStringShorterThan(newMovie.title, 255)) {
+        if (!this._isNonEmptyStringShorterThan(newMovie.title, MAX_TITLE_LENGTH)) {
             errors.push(AppErrors.invalidMovieTitle());
         }
 
@@ -29,6 +32,22 @@ export class MoviesComponent {
 
         if (!this._isValidPositiveNumber(newMovie.runtime)) {
             errors.push(AppErrors.invalidMovieRuntime());
+        }
+
+        if (!this._isNonEmptyStringShorterThan(newMovie.director, MAX_DIRECTOR_LENGTH)) {
+            errors.push(AppErrors.invalidMovieDirector());
+        }
+
+        if (!this._isStringIfDefined(newMovie.actors)) {
+            errors.push(AppErrors.invalidMovieActors());
+        }
+
+        if (!this._isStringIfDefined(newMovie.plot)) {
+            errors.push(AppErrors.invalidMoviePlot());
+        }
+
+        if (!this._isStringIfDefined(newMovie.posterUrl)) {
+            errors.push(AppErrors.invalidMoviePosterUrl());
         }
 
         if (errors.length > 0) {
@@ -60,10 +79,9 @@ export class MoviesComponent {
         }
     }
 
-
     _isNonEmptyStringShorterThan(string, maxLength) {
         return string
-            && string instanceof String
+            && typeof string === 'string'
             && string.trim().length > 0
             && string.length <= maxLength;
     }
@@ -75,6 +93,13 @@ export class MoviesComponent {
         } catch (e) {
             return false;
         }
+    }
+
+    _isStringIfDefined(string) {
+        if (string == undefined || string == null) {
+            return true;
+        }
+        return typeof string === 'string';
     }
 
     searchMovies(duration, genres) {
