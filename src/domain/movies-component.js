@@ -89,7 +89,7 @@ export class MoviesComponent {
     _isValidPositiveNumber(number) {
         try {
             const int = parseInt(number);
-            return int != NaN && int > 0;
+            return !isNaN(int) && int > 0;
         } catch (e) {
             return false;
         }

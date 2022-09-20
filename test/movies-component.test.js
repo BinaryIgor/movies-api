@@ -6,10 +6,10 @@ const DEFAULT_ALLOWED_GENRES = ['First genre', 'second genre'];
 const TOO_LONG_TITLE = "T".repeat(256);
 const TOO_LONG_DIRECTOR = "D".repeat(256);
 
-describe("Movies component tests", () => {
+let repository;
+let component;
 
-    let repository;
-    let component;
+describe("Movies component tests", () => {
 
     beforeEach(() => {
         repository = new FakeMoviesRepository();
@@ -18,43 +18,116 @@ describe("Movies component tests", () => {
         component = new MoviesComponent(repository);
     });
 
-    it('addMovie given newMovie without genres throws expected AppError', () => {
+    it('addMovie, given newMovie without genres, throws expected AppError', () => {
         const newMovie = buildNewMovie({ genres: [] });
-        const allowedGenres = ['A', 'b'];
-        repository.allowedGenres = allowedGenres;
-
-        assertThrowsExpectedAppError(() => component.addMovie(newMovie),
-            AppErrors.invalidMovieGenres(allowedGenres));
+        assertAddMovieThrowsExpectedAppError(newMovie,
+            AppErrors.invalidMovieGenres(DEFAULT_ALLOWED_GENRES));
     });
 
-    it('addMovie given newMovie with invalid genres throws expected AppError', () => {
+    it('addMovie, given newMovie with invalid genres, throws expected AppError', () => {
         const newMovie = buildNewMovie({ genres: ['a', 'b'] });
         const allowedGenres = ['A'];
         repository.allowedGenres = allowedGenres;
 
-        assertThrowsExpectedAppError(() => component.addMovie(newMovie),
+        assertAddMovieThrowsExpectedAppError(newMovie,
             AppErrors.invalidMovieGenres(allowedGenres));
     });
 
-    it('addMovie given newMovie with duplicated genres throws expected AppError', () => {
+    it('addMovie, given newMovie with duplicated genres, throws expected AppError', () => {
         const newMovie = buildNewMovie({ genres: ['a', 'a', 'b', 'b', 'A'] });
         const allowedGenres = ['A', 'B'];
         repository.allowedGenres = allowedGenres;
 
-        assertThrowsExpectedAppError(() => component.addMovie(newMovie),
+        assertAddMovieThrowsExpectedAppError(newMovie,
             AppErrors.invalidMovieGenres(allowedGenres));
     });
 
-    [null, '', TOO_LONG_TITLE].forEach(t =>
-        it(`addMovie given newMovie with invalid ${t} title throws expected AppError`, () => {
+    [null, '', 22, TOO_LONG_TITLE].forEach(t =>
+        it(`addMovie, given newMovie with invalid ${t} title, throws expected AppError`, () => {
             const newMovie = buildNewMovie({ title: t });
-            assertThrowsExpectedAppError(() => component.addMovie(newMovie),
+            assertAddMovieThrowsExpectedAppError(newMovie,
                 AppErrors.invalidMovieTitle());
         }));
+
+    ['A', -1, null].forEach(y => {
+        it(`addMovie, given newMovie with invalid ${y} year, throws expected AppError`, () => {
+            const newMovie = buildNewMovie({ year: y });
+            assertAddMovieThrowsExpectedAppError(newMovie,
+                AppErrors.invalidMovieYear());
+        });
+    });
+
+    ['some runtime', -99, null].forEach(r => {
+        it(`addMovie, given newMovie with invalid ${r} runtime, throws expected AppError`, () => {
+            const newMovie = buildNewMovie({ runtime: r });
+            assertAddMovieThrowsExpectedAppError(newMovie,
+                AppErrors.invalidMovieRuntime());
+        });
+    });
+
+    [null, '', 1, TOO_LONG_DIRECTOR].forEach(d => {
+        it(`addMovie, given newMovie with invalid ${d} director, throws expected AppError`, () => {
+            const newMovie = buildNewMovie({ director: d });
+            assertAddMovieThrowsExpectedAppError(newMovie,
+                AppErrors.invalidMovieDirector());
+        });
+    });
+
+    it('addMovie, given newMovie with invalid actors, throws expected AppError', () => {
+        const newMovie = buildNewMovie({ actors: 123 });
+        assertAddMovieThrowsExpectedAppError(newMovie,
+            AppErrors.invalidMovieActors());
+    });
+
+    it('addMovie, given newMovie with invalid plot, throws expected AppError', () => {
+        const newMovie = buildNewMovie({ plot: 88 });
+        assertAddMovieThrowsExpectedAppError(newMovie,
+            AppErrors.invalidMoviePlot());
+    });
+
+    it('addMovie, given newMovie with invalid posterUrl, throws expected AppError', () => {
+        const newMovie = buildNewMovie({ posterUrl: 101 });
+        assertAddMovieThrowsExpectedAppError(newMovie,
+            AppErrors.invalidMoviePosterUrl());
+    });
+
+    it('addMovie, given newMovie with various invalid fields, throws expected AppError', () => {
+        const newMovie = buildNewMovie({ genres: ['A'], title: 22, year: -1, posterUrl: 202 });
+
+        assertAddMovieThrowsExpectedAppError(newMovie,
+            AppErrors.invalidMovieGenres(DEFAULT_ALLOWED_GENRES),
+            AppErrors.invalidMovieTitle(),
+            AppErrors.invalidMovieYear(),
+            AppErrors.invalidMoviePosterUrl());
+    });
+
+    it('addMovie, given valid newMovie with all fields, adds it to repository and returns id', () => {
+        const newMovie = buildNewMovie();
+        const newMovieId = 99;
+
+        repository.nextMovieId = newMovieId;
+
+        expect(component.addMovie(newMovie)).to.eq(newMovieId);
+        expect(repository.addedMovie).to.deep.equal(newMovie);
+    });
+
+    it('addMovie, given valid newMovie without optional fields, adds it to repository and returns id', () => {
+        const newMovie = buildNewMovie();
+        newMovie.actors = undefined;
+        newMovie.plot = undefined;
+        newMovie.posterUrl = undefined;
+
+        const newMovieId = 101;
+
+        repository.nextMovieId = newMovieId;
+
+        expect(component.addMovie(newMovie)).to.eq(newMovieId);
+        expect(repository.addedMovie).to.deep.equal(newMovie);
+    });
 })
 
-function assertThrowsExpectedAppError(func, ...errors) {
-    expect(func)
+function assertAddMovieThrowsExpectedAppError(newMovie, ...errors) {
+    expect(() => component.addMovie(newMovie))
         .to.throw(AppError)
         .with.property('errors')
         .deep.equals(errors);
@@ -66,14 +139,18 @@ function buildNewMovie({ genres = DEFAULT_ALLOWED_GENRES,
     year = 2000,
     runtime = 100,
     director = "Some Briliant Guy",
-    actors = "Gladiator" } = {}) {
+    actors = "Gladiator",
+    plot = "some plot",
+    posterUrl = "some url" } = {}) {
     return {
         genres: genres,
         title: title,
         year: year,
         runtime: runtime,
         director: director,
-        actors: actors
+        actors: actors,
+        plot: plot,
+        posterUrl: posterUrl
     };
 }
 
@@ -81,6 +158,8 @@ class FakeMoviesRepository {
 
     constructor() {
         this.allowedGenres = [];
+        this.addedMovie = null;
+        this.nextMovieId = 1;
     }
 
     getAllowedGenres() {
@@ -88,6 +167,7 @@ class FakeMoviesRepository {
     }
 
     addMovie(movie) {
-        return 1;
+        this.addedMovie = movie;
+        return this.nextMovieId;
     }
 }
