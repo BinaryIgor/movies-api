@@ -10,6 +10,6 @@ export function handleError(error) {
     }
     return {
         status: 500,
-        response: ApiResponse.failure([AppErrors.unknown])
+        response: ApiResponse.failure([AppErrors.unknown()])
     };
 }

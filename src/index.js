@@ -13,22 +13,30 @@ const moviesComponent = new MoviesComponent(moviesRepository);
 
 app.use(express.json());
 
-app.post("/movies", async (req, res) => {
-    const movie = req.body;
-    const movieId = await moviesComponent.addMovie(movie);
+app.post("/movies", async (req, res, next) => {
+    try {
+        const movie = req.body;
+        const movieId = await moviesComponent.addMovie(movie);
 
-    res.status(201)
-        .json(ApiResponse.success(movieId));
+        res.status(201)
+            .json(ApiResponse.success(movieId));
+    } catch (e) {
+        next(e);
+    }
 });
 
-app.get("/movies", async (req, res) => {
-    const duration = req.query.duration;
-    const genres = req.query.genres;
+app.get("/movies", async (req, res, next) => {
+    try {
+        const duration = req.query.duration;
+        const genres = req.query.genres;
 
-    const movies = await moviesComponent.searchMovies(duration, genres);
+        const movies = await moviesComponent.searchMovies(duration, genres);
 
-    res.status(200)
-        .json(ApiResponse.success(movies));
+        res.status(200)
+            .json(ApiResponse.success(movies));
+    } catch (e) {
+        next(e);
+    }
 });
 
 app.use((err, req, res, next) => {
